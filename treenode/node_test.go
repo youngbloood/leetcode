@@ -20,5 +20,18 @@ func initTreeNode(vals ...int) *treenode.TreeNode {
 func TestGenerateTrees(t *testing.T) {
 	// head := initTreeNode(1, 2, 3)
 
-	fmt.Println(treenode.GenerateTrees(3))
+	fmt.Println(treenode.GenerateTrees(4))
+}
+
+func TestCopyTree(t *testing.T) {
+	tree1 := initTreeNode(1, 2, 3)
+	fmt.Println("tree1 = ", tree1)
+	// tree2 := tree1.Copy()
+	tree2 := treenode.CopyTree(tree1)
+	fmt.Println("tree2 = ", tree2)
+}
+
+func TestIsValidBST(t *testing.T) {
+	tree1 := initTreeNode(1, 2, 3)
+	fmt.Println(treenode.IsValidBST(tree1))
 }

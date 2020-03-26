@@ -116,8 +116,14 @@ The above output corresponds to the 5 unique BST's shown below:
 
 */
 func GenerateTrees(n int) []*TreeNode {
-	var allTree []*TreeNode
+	if n == 0 {
+		return nil
+	}
+	if n == 1 {
+		return []*TreeNode{&TreeNode{Val: 1}}
+	}
 
+	var allTree []*TreeNode
 	vals := make([]int, n)
 	for i := 0; i < n; i++ {
 		vals[i] = i + 1
@@ -125,37 +131,48 @@ func GenerateTrees(n int) []*TreeNode {
 
 	for i := 0; i < n; i++ {
 		head := &TreeNode{Val: vals[i]}
-		allTree = insertTreeArr(allTree, head, head, vals[:i], vals[i+1:])
+		allTree = insertTreeArr(allTree, head, vals[:i], vals[i+1:])
 	}
 	return allTree
 }
 
-func insertTreeArr(allTree []*TreeNode, head, leaf *TreeNode, left, right []int) []*TreeNode {
+func insertTreeArr(allTree []*TreeNode, head *TreeNode, left, right []int) []*TreeNode {
 	if head == nil {
-		return nil
+		return allTree
 	}
 	if len(left) == 0 && len(right) == 0 {
+		return allTree
+	}
+	if len(left) <= 1 && len(right) <= 1 {
+		InsertTreeBatch(head, left...)
+		InsertTreeBatch(head, right...)
 		allTree = append(allTree, head)
 		return allTree
 	}
 
+	headTemp := CopyTree(head)
 	for i, v := range left {
-		leaf = InsertTree(leaf, v)
-		allTree = insertTreeArr(allTree, head, leaf, left[:i], left[i+1:])
+		headLeft := CopyTree(headTemp)
+		InsertTree(headLeft, v)
+		allTree = insertTreeArr(allTree, headLeft, left[:i], left[i+1:])
 	}
+	head = headTemp
 	for i, v := range right {
-		leaf = InsertTree(leaf, v)
-		allTree = insertTreeArr(allTree, head, leaf, right[:i], right[i+1:])
+		headRight := CopyTree(head)
+		InsertTree(headRight, v)
+		allTree = insertTreeArr(allTree, headRight, right[:i], right[i+1:])
 	}
 	return allTree
 }
 
+// 批量插入元素
 func InsertTreeBatch(tree *TreeNode, vals ...int) {
 	for _, v := range vals {
 		InsertTree(tree, v)
 	}
 }
 
+// 单个插入元素
 func InsertTree(tree *TreeNode, value int) *TreeNode {
 	if tree == nil {
 		return tree
@@ -186,4 +203,73 @@ func InsertTree(tree *TreeNode, value int) *TreeNode {
 	}
 	// 表示已经存在该值
 	return nil
+}
+
+// treenode的复制
+func CopyTree(src *TreeNode) *TreeNode {
+	if src == nil {
+		return nil
+	}
+	dst := &TreeNode{Val: src.Val}
+	dst.Right = CopyTree(src.Right)
+	dst.Left = CopyTree(src.Left)
+	return dst
+}
+
+// treenode的复制
+func (tn *TreeNode) Copy() *TreeNode {
+	if tn == nil {
+		return nil
+	}
+	dst := &TreeNode{Val: tn.Val}
+	dst.Right = tn.Right.Copy()
+	dst.Left = tn.Left.Copy()
+	return dst
+}
+
+func IsValidBST(root *TreeNode) bool {
+	return isValidBST(root)
+}
+
+func isValidBST(root *TreeNode) bool {
+	list := inOrderTree(root, nil)
+	if len(list) <= 1 {
+		return true
+	}
+	for i := 1; i < len(list); i++ {
+		if list[i-1].Val >= list[i].Val {
+			return false
+		}
+	}
+	return true
+}
+
+// 中序遍历root
+func inOrderTree(root *TreeNode, list []*TreeNode) []*TreeNode {
+	if root == nil {
+		return list
+	}
+	list = inOrderTree(root.Left, list)
+	list = append(list, root)
+	list = inOrderTree(root.Right, list)
+	return list
+}
+
+// leetcode最优解
+func isValidBST2(root *TreeNode) bool {
+	return isValid(root, nil, nil)
+}
+
+func isValid(root, l, r *TreeNode) bool {
+	if root == nil {
+		return true
+	}
+	left, right := true, true
+	if l != nil {
+		left = l.Val < root.Val
+	}
+	if r != nil {
+		right = root.Val < r.Val
+	}
+	return left && right && isValid(root.Left, l, root) && isValid(root.Right, root, r)
 }
