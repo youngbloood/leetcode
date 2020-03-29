@@ -17,34 +17,36 @@ Output:
 ]
 */
 func Combine(n int, k int) [][]int {
-	combine(n, k)
+	return combine(n, k)
 }
 
 // 列出C(n,k)的所有值
 func combine(n int, k int) [][]int {
-	if k > n {
+	if k > n || n <= 0 || k <= 0 {
 		return nil
 	}
 	src := make([]int, n)
 	for i := 0; i < n; i++ {
 		src[i] = i + 1
 	}
-	return next(nil, src, nil, k)
+	return next(nil, nil, src, k)
 }
 
 func next(result [][]int, src []int, left []int, extra int) [][]int {
 	if extra == 0 {
-		result = append(result, src)
+		srcTmp := make([]int, len(src))
+		copy(srcTmp, src)
+		result = append(result, srcTmp)
 		return result
 	}
 	var s []int
-	for i, v := range src {
+	for i, v := range left {
 		// 向s中添加最后一个元素
-		s = append(s, v)
-		left = src[i+1:]
-		result = next(result, s, left, extra-1)
+		s = append(src, v)
+		leftTemp := left[i+1:]
+		result = next(result, s, leftTemp, extra-1)
 		// 移除最有一个元素
-		s = s[:i]
+		s = s[:len(s)-1]
 	}
 	return result
 }
