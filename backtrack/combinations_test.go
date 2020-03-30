@@ -1,4 +1,4 @@
-package backtack_test
+package backtrack_test
 
 import (
 	"fmt"
@@ -7,5 +7,5 @@ import (
 )
 
 func TestCombine(t *testing.T) {
-	fmt.Println(backtrack.Combine(4, 2))
+	fmt.Println(backtrack.Combine(5, 4))
 }

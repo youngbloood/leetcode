@@ -35,3 +35,9 @@ func TestIsValidBST(t *testing.T) {
 	tree1 := initTreeNode(1, 2, 3)
 	fmt.Println(treenode.IsValidBST(tree1))
 }
+
+func TestIsSameTree(t *testing.T) {
+	tree1 := initTreeNode(1, 2, 3)
+	tree2 := initTreeNode(1, 2, 3)
+	fmt.Println(treenode.IsSameTree(tree1, tree2))
+}
