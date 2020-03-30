@@ -323,3 +323,87 @@ func isSameTree(p *TreeNode, q *TreeNode) bool {
 	}
 	return isSameTree(p.Left, q.Left) && isSameTree(p.Right, q.Right)
 }
+
+/*
+# https://leetcode.com/explore/learn/card/recursion-ii/503/recursion-to-iteration/2774/
+Given a binary tree, return the inorder traversal of its nodes' values.
+
+Example:
+
+Input: [1,null,2,3]
+   1
+    \
+     2
+    /
+   3
+
+Output: [1,3,2]
+Follow up: Recursive solution is trivial, could you do it iteratively?
+*/
+
+func InorderTraversal(root *TreeNode) []int {
+	return inorderTraversal(root)
+}
+
+func inorderTraversal(root *TreeNode) []int {
+	return inorder(root, nil)
+}
+
+func inorder(root *TreeNode, vals []int) []int {
+	if root == nil {
+		return vals
+	}
+	vals = inorder(root.Left, vals)
+	vals = append(vals, root.Val)
+	vals = inorder(root.Right, vals)
+	return vals
+}
+
+/*
+# https://leetcode.com/explore/learn/card/recursion-ii/503/recursion-to-iteration/2784/
+
+Given a binary tree, return the level order traversal of its nodes' values. (ie, from left to right, level by level).
+
+For example:
+Given binary tree [3,9,20,null,null,15,7],
+    3
+   / \
+  9  20
+    /  \
+   15   7
+return its level order traversal as:
+[
+  [3],
+  [9,20],
+  [15,7]
+]
+*/
+func LevelOrder(root *TreeNode) [][]int {
+	return levelOrder(root)
+}
+
+func levelOrder(root *TreeNode) [][]int {
+	if root == nil {
+		return nil
+	}
+	vals := [][]int{[]int{root.Val}}
+	return levelOrderImpl(root.Left, root.Right, vals, 1)
+}
+
+func levelOrderImpl(left, right *TreeNode, vals [][]int, level int) [][]int {
+	if left == nil && right == nil {
+		return vals
+	}
+	if level >= len(vals) {
+		vals = append(vals, []int{})
+	}
+	if left != nil {
+		vals[level] = append(vals[level], left.Val)
+		vals = levelOrderImpl(left.Left, left.Right, vals, level+1)
+	}
+	if right != nil {
+		vals[level] = append(vals[level], right.Val)
+		vals = levelOrderImpl(right.Left, right.Right, vals, level+1)
+	}
+	return vals
+}

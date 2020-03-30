@@ -41,3 +41,8 @@ func TestIsSameTree(t *testing.T) {
 	tree2 := initTreeNode(1, 2, 3)
 	fmt.Println(treenode.IsSameTree(tree1, tree2))
 }
+
+func TestLevelOrder(t *testing.T) {
+	tree1 := initTreeNode(4, 2, 6, 3, 5, 1, 7)
+	fmt.Println(treenode.LevelOrder(tree1))
+}
