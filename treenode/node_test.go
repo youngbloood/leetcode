@@ -3,6 +3,7 @@ package treenode_test
 import (
 	"fmt"
 	"leetcode/treenode"
+	"reflect"
 	"testing"
 )
 
@@ -45,4 +46,26 @@ func TestIsSameTree(t *testing.T) {
 func TestLevelOrder(t *testing.T) {
 	tree1 := initTreeNode(4, 2, 6, 3, 5, 1, 7)
 	fmt.Println(treenode.LevelOrder(tree1))
+}
+
+func TestPreorderTraversal(t *testing.T) {
+	tree1 := initTreeNode(4, 2, 6, 3, 5, 1, 7)
+	fmt.Println(treenode.PreorderTraversal(tree1))
+}
+
+func TestPostorderTraversal(t *testing.T) {
+	tree1 := initTreeNode(4, 2, 6, 3, 5, 1, 7)
+	fmt.Println(treenode.PostorderTraversal(tree1))
+}
+
+func TestBuildTree(t *testing.T) {
+	inorder := []int{9, 3, 15, 20, 7}
+	postorder := []int{9, 15, 7, 20, 3}
+	tree := treenode.BuildTree(inorder, postorder)
+	inorderTree := treenode.InorderTraversal(tree)
+	postorderTree := treenode.PostorderTraversal(tree)
+	t.Log(inorderTree)
+	t.Log(postorderTree)
+	t.Log(reflect.DeepEqual(inorder, inorderTree))
+	t.Log(reflect.DeepEqual(postorder, postorderTree))
 }

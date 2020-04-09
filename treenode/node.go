@@ -56,6 +56,8 @@ func searchBST(root *TreeNode, val int) *TreeNode {
 }
 
 /*
+# https://leetcode.com/explore/learn/card/data-structure-tree/17/solve-problems-recursively/535/
+
 Given a binary tree, find its maximum depth.
 The maximum depth is the number of nodes along the longest path from the root node down to the farthest leaf node.
 Note: A leaf is a node with no children.
@@ -346,16 +348,16 @@ func InorderTraversal(root *TreeNode) []int {
 }
 
 func inorderTraversal(root *TreeNode) []int {
-	return inorder(root, nil)
+	return inorderTree(root, nil)
 }
 
-func inorder(root *TreeNode, vals []int) []int {
+func inorderTree(root *TreeNode, vals []int) []int {
 	if root == nil {
 		return vals
 	}
-	vals = inorder(root.Left, vals)
+	vals = inorderTree(root.Left, vals)
 	vals = append(vals, root.Val)
-	vals = inorder(root.Right, vals)
+	vals = inorderTree(root.Right, vals)
 	return vals
 }
 
@@ -387,10 +389,10 @@ func levelOrder(root *TreeNode) [][]int {
 		return nil
 	}
 	vals := [][]int{[]int{root.Val}}
-	return levelOrderImpl(root.Left, root.Right, vals, 1)
+	return levelOrderTree(root.Left, root.Right, vals, 1)
 }
 
-func levelOrderImpl(left, right *TreeNode, vals [][]int, level int) [][]int {
+func levelOrderTree(left, right *TreeNode, vals [][]int, level int) [][]int {
 	if left == nil && right == nil {
 		return vals
 	}
@@ -399,11 +401,229 @@ func levelOrderImpl(left, right *TreeNode, vals [][]int, level int) [][]int {
 	}
 	if left != nil {
 		vals[level] = append(vals[level], left.Val)
-		vals = levelOrderImpl(left.Left, left.Right, vals, level+1)
+		vals = levelOrderTree(left.Left, left.Right, vals, level+1)
 	}
 	if right != nil {
 		vals[level] = append(vals[level], right.Val)
-		vals = levelOrderImpl(right.Left, right.Right, vals, level+1)
+		vals = levelOrderTree(right.Left, right.Right, vals, level+1)
 	}
 	return vals
+}
+
+/*
+# https://leetcode.com/explore/learn/card/data-structure-tree/134/traverse-a-tree/928/
+
+Given a binary tree, return the preorder traversal of its nodes' values.
+
+Example:
+
+Input: [1,null,2,3]
+   1
+    \
+     2
+    /
+   3
+
+Output: [1,2,3]
+Follow up: Recursive solution is trivial, could you do it iteratively?
+*/
+func PreorderTraversal(root *TreeNode) []int {
+	return preorderTraversal(root)
+}
+
+func preorderTraversal(root *TreeNode) []int {
+	return preorderTree(root, nil)
+}
+
+func preorderTree(root *TreeNode, src []int) []int {
+	if root == nil {
+		return src
+	}
+	src = append(src, root.Val)
+	src = preorderTree(root.Left, src)
+	src = preorderTree(root.Right, src)
+	return src
+}
+
+/*
+# https://leetcode.com/explore/learn/card/data-structure-tree/134/traverse-a-tree/930/
+
+Given a binary tree, return the postorder traversal of its nodes' values.
+
+Example:
+
+Input: [1,null,2,3]
+   1
+    \
+     2
+    /
+   3
+
+Output: [3,2,1]
+Follow up: Recursive solution is trivial, could you do it iteratively?
+*/
+func PostorderTraversal(root *TreeNode) []int {
+	return postorderTraversal(root)
+}
+func postorderTraversal(root *TreeNode) []int {
+	return postorderTree(root, nil)
+}
+
+func postorderTree(root *TreeNode, src []int) []int {
+	if root == nil {
+		return src
+	}
+	src = postorderTree(root.Left, src)
+	src = postorderTree(root.Right, src)
+	src = append(src, root.Val)
+	return src
+}
+
+/*
+# https://leetcode.com/explore/learn/card/data-structure-tree/17/solve-problems-recursively/536/
+
+Given a binary tree, check whether it is a mirror of itself (ie, symmetric around its center).
+
+For example, this binary tree [1,2,2,3,4,4,3] is symmetric:
+
+    1
+   / \
+  2   2
+ / \ / \
+3  4 4  3
+
+
+But the following [1,2,2,null,3,null,3] is not:
+
+    1
+   / \
+  2   2
+   \   \
+   3    3
+
+
+Follow up: Solve it both recursively and iteratively.
+*/
+func IsSymmetric(root *TreeNode) bool {
+	return IsSymmetric(root)
+}
+func isSymmetric(root *TreeNode) bool {
+	if root == nil {
+		return true
+	}
+	return isSymmetricTree(root.Left, root.Right)
+}
+
+func isSymmetricTree(p *TreeNode, q *TreeNode) bool {
+	if p != nil && q != nil && p.Val != q.Val {
+		return false
+	}
+	if p == nil && q == nil {
+		return true
+	}
+	if (p == nil && q != nil) || (p != nil && q == nil) {
+		return false
+	}
+	return isSymmetricTree(p.Left, q.Right) && isSymmetricTree(p.Right, q.Left)
+}
+
+/*
+# https://leetcode.com/explore/learn/card/data-structure-tree/17/solve-problems-recursively/537/
+
+Given a binary tree and a sum, determine if the tree has a root-to-leaf path such that adding up all the values along the path equals the given sum.
+
+Note: A leaf is a node with no children.
+
+Example:
+Given the below binary tree and sum = 22,
+
+      5
+     / \
+    4   8
+   /   / \
+  11  13  4
+ /  \      \
+7    2      1
+return true, as there exist a root-to-leaf path 5->4->11->2 which sum is 22.
+*/
+func HasPathSum(root *TreeNode, sum int) bool {
+	return hasPathSum(root, sum)
+}
+
+func hasPathSum(root *TreeNode, sum int) bool {
+	return hasPathSumTree(root, sum, 0)
+}
+
+func hasPathSumTree(root *TreeNode, sumTarget, sumNow int) bool {
+	if root == nil {
+		return false
+	}
+	sumNow += root.Val
+	// 必须是叶子节点
+	if sumNow == sumTarget && root.Left == nil && root.Right == nil {
+		return true
+	}
+	return hasPathSumTree(root.Left, sumTarget, sumNow) || hasPathSumTree(root.Right, sumTarget, sumNow)
+}
+
+/*
+# https://leetcode.com/explore/learn/card/data-structure-tree/133/conclusion/942/
+
+Given inorder and postorder traversal of a tree, construct the binary tree.
+
+Note:
+You may assume that duplicates do not exist in the tree.
+
+For example, given
+
+inorder = [9,3,15,20,7]
+postorder = [9,15,7,20,3]
+Return the following binary tree:
+
+    3
+   / \
+  9  20
+    /  \
+   15   7
+*/
+func BuildTree(inorder []int, postorder []int) *TreeNode {
+	return buildTree(inorder, postorder)
+}
+
+func buildTree(inorder []int, postorder []int) *TreeNode {
+	return buildTreeWithPos(inorder, postorder, 0, len(inorder)-1)
+}
+
+func buildTreeWithPos(inorder, postorder []int, startInOrder, endInOrder int) *TreeNode {
+	var root *TreeNode
+	for postPos := len(postorder) - 1; postPos >= 0; postPos-- {
+		if root == nil {
+			root = &TreeNode{Val: postorder[postPos]}
+		}
+		for inPos := startInOrder; inPos < endInOrder; inPos++ {
+			if postorder[postPos] == inorder[inPos] {
+				// inorder中inPos左边是左子树
+				root.Left = buildTreeWithPos(inorder, postorder[:postPos], startInOrder, inPos)
+				// inorder中inPos右边是右子树
+				root.Right = buildTreeWithPos(inorder, postorder[:postPos], inPos, endInOrder)
+			}
+		}
+	}
+	return root
+}
+
+func insertLeft(head *TreeNode, val int) {
+	if head.Left == nil {
+		head.Left = &TreeNode{
+			Val: val,
+		}
+	}
+}
+
+func insertRight(head *TreeNode, val int) {
+	if head.Right == nil {
+		head.Right = &TreeNode{
+			Val: val,
+		}
+	}
 }
