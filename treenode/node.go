@@ -1,6 +1,13 @@
 package treenode
 
-// Definition for a binary tree node.
+import (
+	"fmt"
+	"math"
+	"strconv"
+	"strings"
+)
+
+// TreeNode Definition for a binary tree node.
 type TreeNode struct {
 	Val   int
 	Left  *TreeNode
@@ -87,6 +94,7 @@ func maxDepth(root *TreeNode) int {
 	return rdepth + 1
 }
 
+// GenerateTrees .
 /*
 Given an integer n, generate all structurally unique BST's (binary search trees) that store values 1 ... n.
 
@@ -167,14 +175,14 @@ func insertTreeArr(allTree []*TreeNode, head *TreeNode, left, right []int) []*Tr
 	return allTree
 }
 
-// 批量插入元素
+// InsertTreeBatch . 批量插入元素
 func InsertTreeBatch(tree *TreeNode, vals ...int) {
 	for _, v := range vals {
 		InsertTree(tree, v)
 	}
 }
 
-// 单个插入元素
+// InsertTree . 单个插入元素
 func InsertTree(tree *TreeNode, value int) *TreeNode {
 	if tree == nil {
 		return tree
@@ -207,7 +215,7 @@ func InsertTree(tree *TreeNode, value int) *TreeNode {
 	return nil
 }
 
-// treenode的复制
+// CopyTree . treenode的复制
 func CopyTree(src *TreeNode) *TreeNode {
 	if src == nil {
 		return nil
@@ -218,7 +226,7 @@ func CopyTree(src *TreeNode) *TreeNode {
 	return dst
 }
 
-// treenode的复制
+// Copy . treenode的复制
 func (tn *TreeNode) Copy() *TreeNode {
 	if tn == nil {
 		return nil
@@ -229,6 +237,7 @@ func (tn *TreeNode) Copy() *TreeNode {
 	return dst
 }
 
+// IsValidBST .
 func IsValidBST(root *TreeNode) bool {
 	return isValidBST(root)
 }
@@ -276,6 +285,7 @@ func isValid(root, l, r *TreeNode) bool {
 	return left && right && isValid(root.Left, l, root) && isValid(root.Right, root, r)
 }
 
+// IsSameTree .
 /**
 Given two binary trees, write a function to check if they are the same or not.
 
@@ -308,7 +318,6 @@ Input:     1         1
 
 Output: false
 */
-
 func IsSameTree(p *TreeNode, q *TreeNode) bool {
 	return isSameTree(p, q)
 }
@@ -326,6 +335,7 @@ func isSameTree(p *TreeNode, q *TreeNode) bool {
 	return isSameTree(p.Left, q.Left) && isSameTree(p.Right, q.Right)
 }
 
+// InorderTraversal .
 /*
 # https://leetcode.com/explore/learn/card/recursion-ii/503/recursion-to-iteration/2774/
 Given a binary tree, return the inorder traversal of its nodes' values.
@@ -342,7 +352,6 @@ Input: [1,null,2,3]
 Output: [1,3,2]
 Follow up: Recursive solution is trivial, could you do it iteratively?
 */
-
 func InorderTraversal(root *TreeNode) []int {
 	return inorderTraversal(root)
 }
@@ -361,6 +370,7 @@ func inorderTree(root *TreeNode, vals []int) []int {
 	return vals
 }
 
+// LevelOrder .
 /*
 # https://leetcode.com/explore/learn/card/recursion-ii/503/recursion-to-iteration/2784/
 
@@ -410,6 +420,7 @@ func levelOrderTree(left, right *TreeNode, vals [][]int, level int) [][]int {
 	return vals
 }
 
+// PreorderTraversal .
 /*
 # https://leetcode.com/explore/learn/card/data-structure-tree/134/traverse-a-tree/928/
 
@@ -445,6 +456,7 @@ func preorderTree(root *TreeNode, src []int) []int {
 	return src
 }
 
+// PostorderTraversal .
 /*
 # https://leetcode.com/explore/learn/card/data-structure-tree/134/traverse-a-tree/930/
 
@@ -479,6 +491,7 @@ func postorderTree(root *TreeNode, src []int) []int {
 	return src
 }
 
+// IsSymmetric .
 /*
 # https://leetcode.com/explore/learn/card/data-structure-tree/17/solve-problems-recursively/536/
 
@@ -527,6 +540,7 @@ func isSymmetricTree(p *TreeNode, q *TreeNode) bool {
 	return isSymmetricTree(p.Left, q.Right) && isSymmetricTree(p.Right, q.Left)
 }
 
+// HasPathSum .
 /*
 # https://leetcode.com/explore/learn/card/data-structure-tree/17/solve-problems-recursively/537/
 
@@ -566,6 +580,7 @@ func hasPathSumTree(root *TreeNode, sumTarget, sumNow int) bool {
 	return hasPathSumTree(root.Left, sumTarget, sumNow) || hasPathSumTree(root.Right, sumTarget, sumNow)
 }
 
+// BuildTreeInPost .
 /*
 # https://leetcode.com/explore/learn/card/data-structure-tree/133/conclusion/942/
 
@@ -586,44 +601,306 @@ Return the following binary tree:
     /  \
    15   7
 */
-func BuildTree(inorder []int, postorder []int) *TreeNode {
-	return buildTree(inorder, postorder)
+func BuildTreeInPost(inorder []int, postorder []int) *TreeNode {
+	return buildTreeInPost(inorder, postorder)
 }
 
-func buildTree(inorder []int, postorder []int) *TreeNode {
-	return buildTreeWithPos(inorder, postorder, 0, len(inorder)-1)
-}
-
-func buildTreeWithPos(inorder, postorder []int, startInOrder, endInOrder int) *TreeNode {
+func buildTreeInPost(inorder []int, postorder []int) *TreeNode {
+	if len(inorder) == 0 {
+		return nil
+	}
 	var root *TreeNode
-	for postPos := len(postorder) - 1; postPos >= 0; postPos-- {
-		if root == nil {
-			root = &TreeNode{Val: postorder[postPos]}
-		}
-		for inPos := startInOrder; inPos < endInOrder; inPos++ {
-			if postorder[postPos] == inorder[inPos] {
-				// inorder中inPos左边是左子树
-				root.Left = buildTreeWithPos(inorder, postorder[:postPos], startInOrder, inPos)
-				// inorder中inPos右边是右子树
-				root.Right = buildTreeWithPos(inorder, postorder[:postPos], inPos, endInOrder)
-			}
+	postPos := len(postorder) - 1
+	root = &TreeNode{Val: postorder[postPos]}
+
+	for inPos := 0; inPos < len(inorder); inPos++ {
+		if postorder[postPos] == inorder[inPos] {
+			// inorder中inPos左边是左子树
+			root.Left = buildTreeInPost(inorder[:inPos], postorder[:inPos])
+			// inorder中inPos右边是右子树
+			root.Right = buildTreeInPost(inorder[inPos+1:], postorder[inPos:postPos])
+			// 找到了就退出此次循环
+			break
 		}
 	}
 	return root
 }
 
-func insertLeft(head *TreeNode, val int) {
-	if head.Left == nil {
-		head.Left = &TreeNode{
-			Val: val,
+// BuildTreePreIn .
+/*
+# https://leetcode.com/explore/learn/card/data-structure-tree/133/conclusion/943/
+
+Given preorder and inorder traversal of a tree, construct the binary tree.
+
+Note:
+You may assume that duplicates do not exist in the tree.
+
+For example, given
+
+preorder = [3,9,20,15,7]
+inorder = [9,3,15,20,7]
+Return the following binary tree:
+
+    3
+   / \
+  9  20
+    /  \
+   15   7
+*/
+func BuildTreePreIn(preorder []int, inorder []int) *TreeNode {
+	return buildTreePreIn(preorder, inorder)
+}
+func buildTreePreIn(preorder []int, inorder []int) *TreeNode {
+	if len(inorder) == 0 {
+		return nil
+	}
+	var root *TreeNode
+	prePos := 0
+	root = &TreeNode{Val: preorder[prePos]}
+
+	for inPos := 0; inPos < len(inorder); inPos++ {
+		if preorder[prePos] == inorder[inPos] {
+			// inorder中inPos左边是左子树
+			root.Left = buildTreePreIn(preorder[prePos+1:inPos+1], inorder[:inPos])
+			// inorder中inPos右边是右子树
+			root.Right = buildTreePreIn(preorder[inPos+1:], inorder[inPos+1:])
+			// 找到了就退出此次循环
+			break
 		}
 	}
+	return root
 }
 
-func insertRight(head *TreeNode, val int) {
-	if head.Right == nil {
-		head.Right = &TreeNode{
-			Val: val,
+// LowestCommonAncestor .
+/*
+# https://leetcode.com/explore/learn/card/data-structure-tree/133/conclusion/932/
+
+Given a binary tree, find the lowest common ancestor (LCA) of two given nodes in the tree.
+
+According to the definition of LCA on Wikipedia: “The lowest common ancestor is defined between two nodes p and q as the lowest node in T that has both p and q as descendants (where we allow a node to be a descendant of itself).”
+
+Given the following binary tree:  root = [3,5,1,6,2,0,8,null,null,7,4]
+
+					  3
+					 / \
+				   /     \
+				  5       1
+				 / \     / \
+				6   2   0   8
+				   / \
+				  7   4
+
+Example 1:
+
+Input: root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1
+Output: 3
+Explanation: The LCA of nodes 5 and 1 is 3.
+Example 2:
+
+Input: root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 4
+Output: 5
+Explanation: The LCA of nodes 5 and 4 is 5, since a node can be a descendant of itself according to the LCA definition.
+
+
+Note:
+
+All of the nodes' values will be unique.
+p and q are different and both values will exist in the binary tree.
+*/
+func LowestCommonAncestor(root, p, q *TreeNode) *TreeNode {
+	return lowestCommonAncestor(root, p, q)
+}
+func lowestCommonAncestor(root, p, q *TreeNode) *TreeNode {
+	// 查看p是否包含q
+	if isContain := contain(p, q); isContain {
+		return p
+	}
+	// 查看q是否包含p
+	if isContain := contain(q, p); isContain {
+		return q
+	}
+
+	// 寻找p的父节点集合
+	pHead := p
+	var pHeads []*TreeNode
+	for pHead != root {
+		pHead = findHead(root, root, pHead)
+		pHeads = append(pHeads, pHead)
+	}
+	// 寻找q的父节点集合
+	qHead := q
+	var qHeads []*TreeNode
+	for qHead != root {
+		qHead = findHead(root, root, qHead)
+		qHeads = append(qHeads, qHead)
+	}
+
+	// 倒序找出最小公共父节点
+	var minLen int = len(pHeads)
+	if len(pHeads) > len(qHeads) {
+		minLen = len(qHeads)
+	}
+
+	for i := 0; i < minLen; i++ {
+		if pHeads[len(pHeads)-1-i] != qHeads[len(qHeads)-1-i] {
+			return pHeads[len(pHeads)-1-i+1]
 		}
 	}
+	if len(pHeads) > len(qHeads) {
+		return qHeads[0]
+	}
+	return pHeads[0]
 }
+
+func contain(p, q *TreeNode) bool {
+	if p == nil {
+		return false
+	}
+	if p.Val == q.Val {
+		return true
+	}
+	return contain(p.Left, q) || contain(p.Right, q)
+}
+
+func findHead(parent, tree, target *TreeNode) *TreeNode {
+	if !contain(tree, target) {
+		return nil
+	}
+	if tree.Val == target.Val {
+		return parent
+	}
+	if r := findHead(tree, tree.Left, target); r != nil {
+		return r
+	}
+	return findHead(tree, tree.Right, target)
+}
+
+/*Leetcode上的一个优解*/
+func findLCA(root, p, q *TreeNode) *TreeNode {
+	if root == nil || root == p || root == q {
+		return root
+	}
+	// 分别找到p,q在左右子树中的位置，为l,r
+	l, r := findLCA(root.Left, p, q), findLCA(root.Right, p, q)
+	// 分别位于两边子树
+	if l != nil && r != nil {
+		return root
+	}
+	// 均位于左子树
+	if l != nil {
+		return l
+	}
+	// 均位于右子树
+	return r
+}
+
+/*
+# https://leetcode.com/explore/learn/card/data-structure-tree/133/conclusion/995/
+
+Serialization is the process of converting a data structure or object into a sequence of bits so that it can be stored in a file or memory buffer, or transmitted across a network connection link to be reconstructed later in the same or another computer environment.
+
+Design an algorithm to serialize and deserialize a binary tree. There is no restriction on how your serialization/deserialization algorithm should work. You just need to ensure that a binary tree can be serialized to a string and this string can be deserialized to the original tree structure.
+
+Example:
+
+You may serialize the following tree:
+
+    1
+   / \
+  2   3
+     / \
+    4   5
+
+as "[1,2,3,null,null,4,5]"
+Clarification: The above format is the same as how LeetCode serializes a binary tree. You do not necessarily need to follow this format, so please be creative and come up with different approaches yourself.
+
+Note: Do not use class member/global/static variables to store states. Your serialize and deserialize algorithms should be stateless.
+*/
+
+// Codec .
+type Codec struct {
+	null       string // 空符号
+	split      string // 分割符
+	isCompress bool   // 是否压缩
+}
+
+// Constructor .
+func Constructor() Codec {
+	return Codec{null: "nil", split: ",", isCompress: true}
+}
+
+// Serialize . a tree to a single string.
+func (this *Codec) Serialize(root *TreeNode) string {
+	return this.serialize(root)
+}
+
+func (this *Codec) serialize(root *TreeNode) string {
+	list := this.toSlice(root, nil, 0, 0)
+	return this.toCompressString(list)
+}
+
+func (this *Codec) toSlice(root *TreeNode, src []*TreeNode, level, pos int) []*TreeNode {
+	if root == nil {
+		return src
+	}
+	// src的扩容
+	levelLen := int(math.Pow(float64(2), float64(level)))
+	if len(src) <= pos {
+		srcTemp := make([]*TreeNode, len(src)+levelLen)
+		copy(srcTemp, src)
+		src = srcTemp
+	}
+	src[pos] = root
+	src = this.toSlice(root.Left, src, level+1, pos*2+1)
+	src = this.toSlice(root.Right, src, level+1, pos*2+2)
+	return src
+}
+
+func (this *Codec) toCompressString(list []*TreeNode) string {
+	strs := make([]string, len(list))
+	for i := range list {
+		if list[i] != nil {
+			strs[i] = strconv.Itoa(list[i].Val)
+		} else {
+			strs[i] = this.null
+		}
+	}
+
+	if !this.isCompress {
+		return strings.Join(strs, this.split)
+	}
+	var comporessStr []string
+	// 压缩strs
+	start, end := 0, 0
+	for i := range strs {
+		if strs[i] != this.null {
+			if end > start {
+				comporessStr = append(comporessStr, fmt.Sprintf("%d%s", end-start, this.null))
+			}
+			start = i
+			comporessStr = append(comporessStr, strs[i])
+			continue
+		}
+		end = i
+		if end == len(strs)-1 {
+			comporessStr = append(comporessStr, fmt.Sprintf("%d%s", end-start, this.null))
+		}
+	}
+	return strings.Join(comporessStr, this.split)
+}
+
+// Deserializes your encoded data to tree.
+func (this *Codec) Deserialize(data string) *TreeNode {
+	return this.deserialize(data)
+}
+
+func (this *Codec) deserialize(data string) *TreeNode {
+	return nil
+}
+
+/**
+ * Your Codec object will be instantiated and called as such:
+ * obj := Constructor();
+ * data := obj.serialize(root);
+ * ans := obj.deserialize(data);
+ */
