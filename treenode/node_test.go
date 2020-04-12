@@ -105,4 +105,15 @@ func TestCodec(t *testing.T) {
 	ans := obj.Deserialize(data)
 	t.Log(data)
 	t.Log(ans)
+
+	preorder = nil
+	for i := 1; i <= 100; i++ {
+		preorder = append(preorder, i)
+	}
+	root = treenode.BuildTreePreIn(preorder, preorder)
+	obj = treenode.Constructor()
+	data = obj.Serialize(root)
+	ans = obj.Deserialize(data)
+	t.Log(data)
+	t.Log(ans)
 }

@@ -836,7 +836,7 @@ func (this *Codec) Serialize(root *TreeNode) string {
 
 func (this *Codec) serialize(root *TreeNode) string {
 	list := this.toSlice(root, nil, 0, 0)
-	return this.toCompressString(list)
+	return this.toString(list)
 }
 
 func (this *Codec) toSlice(root *TreeNode, src []*TreeNode, level, pos int) []*TreeNode {
@@ -856,7 +856,7 @@ func (this *Codec) toSlice(root *TreeNode, src []*TreeNode, level, pos int) []*T
 	return src
 }
 
-func (this *Codec) toCompressString(list []*TreeNode) string {
+func (this *Codec) toString(list []*TreeNode) string {
 	strs := make([]string, len(list))
 	for i := range list {
 		if list[i] != nil {
@@ -865,24 +865,27 @@ func (this *Codec) toCompressString(list []*TreeNode) string {
 			strs[i] = this.null
 		}
 	}
-
 	if !this.isCompress {
 		return strings.Join(strs, this.split)
 	}
+	return this.compress(strs)
+}
+
+func (this *Codec) compress(src []string) string {
 	var comporessStr []string
-	// 压缩strs
+	// src
 	start, end := 0, 0
-	for i := range strs {
-		if strs[i] != this.null {
+	for i := range src {
+		if src[i] != this.null {
 			if end > start {
 				comporessStr = append(comporessStr, fmt.Sprintf("%d%s", end-start, this.null))
 			}
 			start = i
-			comporessStr = append(comporessStr, strs[i])
+			comporessStr = append(comporessStr, src[i])
 			continue
 		}
 		end = i
-		if end == len(strs)-1 {
+		if end == len(src)-1 {
 			comporessStr = append(comporessStr, fmt.Sprintf("%d%s", end-start, this.null))
 		}
 	}
@@ -895,12 +898,57 @@ func (this *Codec) Deserialize(data string) *TreeNode {
 }
 
 func (this *Codec) deserialize(data string) *TreeNode {
-	return nil
+	if data == "" {
+		return nil
+	}
+	datas := strings.Split(data, this.split)
+	vals := this.toNodeSlice(datas)
+	return this.buildTree(vals, nil, 0)
 }
 
-/**
- * Your Codec object will be instantiated and called as such:
- * obj := Constructor();
- * data := obj.serialize(root);
- * ans := obj.deserialize(data);
- */
+func (this *Codec) toNodeSlice(datas []string) (vals []*TreeNode) {
+	if this.isCompress {
+		for _, v := range datas {
+			if strings.HasSuffix(v, this.null) {
+				vi, err := strconv.Atoi(v[:len(v)-len(this.null)])
+				if err != nil {
+					panic(err)
+				}
+				for i := 0; i < vi; i++ {
+					vals = append(vals, (*TreeNode)(nil))
+				}
+			} else {
+				vi, err := strconv.Atoi(v)
+				if err != nil {
+					panic(err)
+				}
+				vals = append(vals, &TreeNode{Val: vi})
+			}
+		}
+		return
+	}
+	for _, v := range datas {
+		if v == this.null {
+			vals = append(vals, (*TreeNode)(nil))
+		} else {
+			vi, err := strconv.Atoi(v)
+			if err != nil {
+				panic(err)
+			}
+			vals = append(vals, &TreeNode{Val: vi})
+		}
+	}
+	return
+}
+
+func (this *Codec) buildTree(list []*TreeNode, root *TreeNode, pos int) *TreeNode {
+	if pos >= len(list) || list[pos] == nil {
+		return root
+	}
+	if root == nil {
+		root = list[pos]
+	}
+	root.Left = this.buildTree(list, root.Left, pos*2+1)
+	root.Right = this.buildTree(list, root.Right, pos*2+2)
+	return root
+}
