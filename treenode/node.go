@@ -2,7 +2,6 @@ package treenode
 
 import (
 	"fmt"
-	"math"
 	"strconv"
 	"strings"
 )
@@ -817,16 +816,28 @@ Clarification: The above format is the same as how LeetCode serializes a binary 
 Note: Do not use class member/global/static variables to store states. Your serialize and deserialize algorithms should be stateless.
 */
 
+// 思路：值（左子树（左子树，右子树），右子树（左子树，右子树））
+/*
+	1
+   / \
+  2   3
+ / \ / \
+4  5 6  7
+
+// Serialize1: 1(2,3(4,5))
+// Serialize2: 1(2(4,5),3(6,7))
+*/
+
 // Codec .
 type Codec struct {
-	null       string // 空符号
-	split      string // 分割符
-	isCompress bool   // 是否压缩
+	nodeSplit  string // 节点分割符
+	leftSplit  string // 与rightSplit配对
+	rightSplit string // 与leftSplit配对
 }
 
 // Constructor .
 func Constructor() Codec {
-	return Codec{null: "nil", split: ",", isCompress: true}
+	return Codec{nodeSplit: ",", leftSplit: "(", rightSplit: ")"}
 }
 
 // Serialize . a tree to a single string.
@@ -835,61 +846,23 @@ func (this *Codec) Serialize(root *TreeNode) string {
 }
 
 func (this *Codec) serialize(root *TreeNode) string {
-	list := this.toSlice(root, nil, 0, 0)
-	return this.toString(list)
-}
-
-func (this *Codec) toSlice(root *TreeNode, src []*TreeNode, level, pos int) []*TreeNode {
 	if root == nil {
-		return src
+		return ""
 	}
-	// src的扩容
-	levelLen := int(math.Pow(float64(2), float64(level)))
-	if len(src) <= pos {
-		srcTemp := make([]*TreeNode, len(src)+levelLen)
-		copy(srcTemp, src)
-		src = srcTemp
+	leftStr := this.serialize(root.Left)
+	rightStr := this.serialize(root.Right)
+	var nodeStr string
+	switch {
+	case leftStr == "" && rightStr == "":
+		nodeStr = fmt.Sprintf("%d", root.Val)
+	case leftStr != "" && rightStr == "":
+		nodeStr = fmt.Sprintf("%d%s%s%s%s", root.Val, this.leftSplit, leftStr, this.nodeSplit, this.rightSplit)
+	case leftStr == "" && rightStr != "":
+		nodeStr = fmt.Sprintf("%d%s%s%s%s", root.Val, this.leftSplit, this.nodeSplit, rightStr, this.rightSplit)
+	default:
+		nodeStr = fmt.Sprintf("%d%s%s%s%s%s", root.Val, this.leftSplit, leftStr, this.nodeSplit, rightStr, this.rightSplit)
 	}
-	src[pos] = root
-	src = this.toSlice(root.Left, src, level+1, pos*2+1)
-	src = this.toSlice(root.Right, src, level+1, pos*2+2)
-	return src
-}
-
-func (this *Codec) toString(list []*TreeNode) string {
-	strs := make([]string, len(list))
-	for i := range list {
-		if list[i] != nil {
-			strs[i] = strconv.Itoa(list[i].Val)
-		} else {
-			strs[i] = this.null
-		}
-	}
-	if !this.isCompress {
-		return strings.Join(strs, this.split)
-	}
-	return this.compress(strs)
-}
-
-func (this *Codec) compress(src []string) string {
-	var comporessStr []string
-	// src
-	start, end := 0, 0
-	for i := range src {
-		if src[i] != this.null {
-			if end > start {
-				comporessStr = append(comporessStr, fmt.Sprintf("%d%s", end-start, this.null))
-			}
-			start = i
-			comporessStr = append(comporessStr, src[i])
-			continue
-		}
-		end = i
-		if end == len(src)-1 {
-			comporessStr = append(comporessStr, fmt.Sprintf("%d%s", end-start, this.null))
-		}
-	}
-	return strings.Join(comporessStr, this.split)
+	return nodeStr
 }
 
 // Deserializes your encoded data to tree.
@@ -901,54 +874,48 @@ func (this *Codec) deserialize(data string) *TreeNode {
 	if data == "" {
 		return nil
 	}
-	datas := strings.Split(data, this.split)
-	vals := this.toNodeSlice(datas)
-	return this.buildTree(vals, nil, 0)
-}
+	val, err := strconv.Atoi(data)
+	if err == nil {
+		return &TreeNode{Val: val}
+	}
+	// 寻找第一个leftSplit
+	firstSplit := strings.Index(data, this.leftSplit)
+	if firstSplit < 0 {
+		return nil
+	}
+	subStr := data[firstSplit+1 : len(data)-1]
 
-func (this *Codec) toNodeSlice(datas []string) (vals []*TreeNode) {
-	if this.isCompress {
-		for _, v := range datas {
-			if strings.HasSuffix(v, this.null) {
-				vi, err := strconv.Atoi(v[:len(v)-len(this.null)])
-				if err != nil {
-					panic(err)
+	// 寻找分割点povit
+	var povit, splitCount int
+	for i, v := range subStr {
+		if string(v) == this.nodeSplit && splitCount == 0 {
+			povit = i
+			break
+		}
+		if string(v) == this.leftSplit {
+			splitCount++
+			continue
+		}
+		if string(v) == this.rightSplit {
+			splitCount--
+			if splitCount == 0 {
+				if i == len(subStr)-1 {
+					povit = i
+				} else {
+					povit = i + 1
 				}
-				for i := 0; i < vi; i++ {
-					vals = append(vals, (*TreeNode)(nil))
-				}
-			} else {
-				vi, err := strconv.Atoi(v)
-				if err != nil {
-					panic(err)
-				}
-				vals = append(vals, &TreeNode{Val: vi})
+				break
 			}
 		}
-		return
 	}
-	for _, v := range datas {
-		if v == this.null {
-			vals = append(vals, (*TreeNode)(nil))
-		} else {
-			vi, err := strconv.Atoi(v)
-			if err != nil {
-				panic(err)
-			}
-			vals = append(vals, &TreeNode{Val: vi})
-		}
+	// 提取出head值，并解析左子树和右子树
+	val, err = strconv.Atoi(data[:firstSplit])
+	if err != nil {
+		panic("not standard string")
 	}
-	return
-}
-
-func (this *Codec) buildTree(list []*TreeNode, root *TreeNode, pos int) *TreeNode {
-	if pos >= len(list) || list[pos] == nil {
-		return root
-	}
-	if root == nil {
-		root = list[pos]
-	}
-	root.Left = this.buildTree(list, root.Left, pos*2+1)
-	root.Right = this.buildTree(list, root.Right, pos*2+2)
+	root := &TreeNode{Val: val}
+	leftNode, rightNode := subStr[:povit], subStr[povit+1:]
+	root.Left = this.deserialize(leftNode)
+	root.Right = this.deserialize(rightNode)
 	return root
 }
