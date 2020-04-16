@@ -104,19 +104,38 @@ The relative order inside both the even and odd groups should remain as it was i
 The first node is considered odd, the second node even and so on ...
 */
 func OddEvenList(head *ListNode) *ListNode {
-
+	return oddEvenList(head)
 }
 
 func oddEvenList(head *ListNode) *ListNode {
-
+	if head == nil {
+		return nil
+	}
+	even := head
+	var odd *ListNode
+	oddEvenListCycle(head, 1, odd, even)
 }
 
 func oddEvenListCycle(head *ListNode, index int, odd, even *ListNode) {
+	if head == nil {
+		return
+	}
 	if index/2 == 0 {
 		// odd
-		odd.Next = head
+		if odd == nil {
+			odd == head
+		} else {
+			odd.Next = head
+			odd = odd.Next
+		}
 	} else {
 		// even
-		even.Next = head
+		if even == nil {
+			even == head
+		} else {
+			even.Next = head
+			even = even.Next
+		}
 	}
+	oddEvenListCycle(head.Next, index+1, odd, even)
 }
