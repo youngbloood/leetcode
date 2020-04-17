@@ -340,11 +340,107 @@ func ConstructorKthLargest(k int, nums []int) KthLargest {
 	if nums != nil && len(nums) != 0 {
 		head = &TreeNode{Val: nums[0]}
 	}
-	InsertTreeBatch(head, nums[1:])
+	InsertTreeBatch(head, nums[1:]...)
 	return KthLargest{head: head, k: k}
 }
 
 func (this *KthLargest) Add(val int) int {
-	InsertTree(this.tree, val)
+	InsertTree(this.head, val)
 	// 寻找第k个最大值
+	return 0
+}
+
+/*
+# https://leetcode.com/explore/interview/card/top-interview-questions-medium/108/trees-and-graphs/790/
+
+Given a binary search tree, write a function kthSmallest to find the kth smallest element in it.
+
+Note:
+You may assume k is always valid, 1 ≤ k ≤ BST's total elements.
+
+Example 1:
+Input: root = [3,1,4,null,2], k = 1
+   3
+  / \
+ 1   4
+  \
+   2
+Output: 1
+
+Example 2:
+Input: root = [5,3,6,2,4,null,null,1], k = 3
+       5
+      / \
+     3   6
+    / \
+   2   4
+  /
+ 1
+Output: 3
+Follow up:
+What if the BST is modified (insert/delete operations) often and you need to find the kth smallest frequently? How would you optimize the kthSmallest routine?
+
+Hint #1:
+Try to utilize the property of a BST.
+
+Hint #2:
+Try in-order traversal. (Credits to @chan13)
+
+Hint #3:
+What if you could modify the BST node's structure?
+
+Hint #4:
+The optimal runtime complexity is O(height of BST).
+*/
+func KthSmallest(root *TreeNode, k int) int {
+	return kthSmallest2(root, k)
+}
+
+func kthSmallest(root *TreeNode, k int) int {
+	list := inorderTraversal(root)
+	if len(list) < k {
+		return -1
+	}
+	return list[k-1]
+}
+
+// The optimal runtime complexity is O(height of BST).
+func kthSmallest2(root *TreeNode, k int) int {
+	leftCount, val := kthSmallest2Count(root.Left, k)
+	if val != nil {
+		return val.Val
+	}
+	rightCount, val := kthSmallest2Count(root.Right, k-leftCount-1)
+	if val != nil {
+		return val.Val
+	}
+	if k > rightCount+leftCount {
+		return -1
+	}
+	return root.Val
+}
+
+func kthSmallest2Count(root *TreeNode, k int) (count int, val *TreeNode) {
+	if root == nil {
+		return 0, nil
+	}
+	leftCount, val := kthSmallest2Count(root.Left, k)
+	if val != nil {
+		return 0, val
+	}
+	if k < leftCount {
+		// 找到了
+		val = root
+		return
+	}
+	rightCount, val := kthSmallest2Count(root.Right, k-leftCount-1)
+	if val != nil {
+		return 0, val
+	}
+	count = leftCount + rightCount + 1
+	if k <= count && k != 0 {
+		// 找到了
+		val = root
+	}
+	return
 }

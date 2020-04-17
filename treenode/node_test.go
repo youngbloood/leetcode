@@ -119,3 +119,16 @@ func TestCodec(t *testing.T) {
 	t.Log(data)
 	t.Log(ans)
 }
+
+func TestZigzagLevelOrder(t *testing.T) {
+	preorder := []int{3, 9, 20, 15, 7}
+	inorder := []int{9, 3, 15, 20, 7}
+	tree1 := treenode.BuildTreePreIn(preorder, inorder)
+	t.Log(treenode.ZigzagLevelOrder(tree1))
+
+	// Expected: [[1],[3,2],[4,5]]
+	preorder = []int{1, 2, 4, 3, 5}
+	inorder = []int{4, 2, 1, 3, 5}
+	tree1 = treenode.BuildTreePreIn(preorder, inorder)
+	t.Log(treenode.ZigzagLevelOrder(tree1))
+}
