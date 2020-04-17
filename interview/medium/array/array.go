@@ -25,8 +25,21 @@ Output: true
 
 */
 func IncreasingTriplet(nums []int) bool {
-
+	return increasingTriplet(nums)
 }
 func increasingTriplet(nums []int) bool {
-
+	if nums == nil || len(nums) <= 2 {
+		return false
+	}
+	a, b := 1<<31, 1<<31
+	for i := 0; i < len(nums); i++ {
+		if nums[i] <= a { // nums[i]<=a
+			a = nums[i]
+		} else if nums[i] <= b { // a <= nums[i] <= b
+			b = nums[i]
+		} else { // a <= b <= nums[i]
+			return true
+		}
+	}
+	return false
 }

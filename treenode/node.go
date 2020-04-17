@@ -919,3 +919,49 @@ func (this *Codec) deserialize(data string) *TreeNode {
 	root.Right = this.deserialize(rightNode)
 	return root
 }
+
+/*
+# https://leetcode.com/explore/interview/card/top-interview-questions-medium/108/trees-and-graphs/787/
+
+Given a binary tree, return the zigzag level order traversal of its nodes' values. (ie, from left to right, then right to left for the next level and alternate between).
+
+For example:
+Given binary tree [3,9,20,null,null,15,7],
+    3
+   / \
+  9  20
+    /  \
+   15   7
+return its zigzag level order traversal as:
+[
+  [3],
+  [20,9],
+  [15,7]
+]
+*/
+func ZigzagLevelOrder(root *TreeNode) [][]int {
+	return zigzagLevelOrder(root)
+}
+
+func zigzagLevelOrder(root *TreeNode) [][]int {
+	return zigzagLevelOrderImpl(root, 0, nil)
+}
+
+func zigzagLevelOrderImpl(root *TreeNode, level int, result [][]int) [][]int {
+	if root == nil {
+		return result
+	}
+
+	if len(result) > level {
+		if level%2 != 0 {
+			result[level] = append([]int{root.Val}, result[level]...)
+		} else {
+			result[level] = append(result[level], root.Val)
+		}
+	} else {
+		result = append(result, []int{root.Val})
+	}
+	result = zigzagLevelOrderImpl(root.Left, level+1, result)
+	result = zigzagLevelOrderImpl(root.Right, level+1, result)
+	return result
+}

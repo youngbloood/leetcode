@@ -72,3 +72,26 @@ func TestAddTwoNumbers(t *testing.T) {
 	t.Log(l1)
 	t.Log(l2)
 }
+
+func TestOddEvenList(t *testing.T) {
+	l1 := initLinkList(1, 2, 3, 4, 5)
+	l1 = linklist.OddEvenList(l1)
+	l1 = initLinkList(2, 1, 3, 5, 6, 4, 7)
+	l1 = linklist.OddEvenList(l1)
+	t.Log(l1)
+}
+
+func TestGetIntersectionNode(t *testing.T) {
+
+	l1 := initLinkList(4, 1, 8, 4, 5)
+	l2 := initLinkList(5, 0, 1, 8, 4, 5)
+
+	interSection := linklist.GetIntersectionNode(l1, l2)
+	t.Log(interSection)
+
+	l1 = initLinkList(0, 9, 1, 2, 4)
+	l2 = initLinkList(3, 2, 4)
+
+	interSection = linklist.GetIntersectionNode(l1, l2)
+	t.Log(interSection)
+}
