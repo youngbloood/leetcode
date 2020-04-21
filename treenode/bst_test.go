@@ -96,8 +96,8 @@ func TestKthSmallest(t *testing.T) {
 		  /
 		 1
 	*/
-	preorder = []int{5, 3, 2, 1, 4, 6}
-	inorder = []int{1, 2, 3, 4, 5, 6}
+	preorder = []int{10, 7, 5, 3, 8, 12}
+	inorder = []int{3, 5, 7, 8, 10, 12}
 	tree1 = treenode.BuildTreePreIn(preorder, inorder)
 	t.Log(treenode.KthSmallest(tree1, 1))
 	t.Log(treenode.KthSmallest(tree1, 2))
@@ -106,4 +106,21 @@ func TestKthSmallest(t *testing.T) {
 	t.Log(treenode.KthSmallest(tree1, 5))
 	t.Log(treenode.KthSmallest(tree1, 6))
 
+}
+
+func TestNumIslands(t *testing.T) {
+	grid := [][]byte{
+		[]byte("11110"),
+		[]byte("11010"),
+		[]byte("11000"),
+		[]byte("00000"),
+	}
+	t.Log(treenode.NumIslands(grid))
+	grid = [][]byte{
+		[]byte("11000"),
+		[]byte("11000"),
+		[]byte("00100"),
+		[]byte("00011"),
+	}
+	t.Log(treenode.NumIslands(grid))
 }

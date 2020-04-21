@@ -1,5 +1,7 @@
 package treenode
 
+import "sort"
+
 /*
 # https://leetcode.com/explore/learn/card/introduction-to-data-structure-binary-search-tree/140/introduction-to-a-bst/1008/
 
@@ -330,24 +332,80 @@ Note:
 You may assume that nums' length ≥ k-1 and k ≥ 1.
 */
 
+// TODO: 需更正
 type KthLargest struct {
-	head *TreeNode
-	k    int
+	arr []int
+	k   int
 }
 
 func ConstructorKthLargest(k int, nums []int) KthLargest {
-	var head *TreeNode
-	if nums != nil && len(nums) != 0 {
-		head = &TreeNode{Val: nums[0]}
-	}
-	InsertTreeBatch(head, nums[1:]...)
-	return KthLargest{head: head, k: k}
+	sort.Ints(nums)
+	return KthLargest{arr: nums, k: k}
 }
 
 func (this *KthLargest) Add(val int) int {
-	InsertTree(this.head, val)
-	// 寻找第k个最大值
-	return 0
+	// 二分法查找arr中的值
+	start, end := 0, len(this.arr)-1
+	for start < end {
+		mid := (start + end) / 2
+		if this.arr[mid] > val {
+			end = mid
+		} else if this.arr[mid] < val {
+			start = mid + 1
+		} else {
+			last := this.arr[mid+1:]
+			this.arr = append(this.arr[:mid], val)
+			this.arr = append(this.arr, last...)
+		}
+	}
+	if len(this.arr) >= this.k {
+		return this.arr[this.k-1]
+	}
+	return -1
+}
+
+// The optimal runtime complexity is O(height of BST).
+func KthLargestFun(root *TreeNode, k int) int {
+	// 先查询右边
+	rightCount, val := KthLargestCount(root.Right, k)
+	if val != nil {
+		return val.Val
+	}
+	// k是否是root节点
+	if k == rightCount+1 {
+		return root.Val
+	}
+	// 再查询左边
+	_, val = KthLargestCount(root.Left, k-rightCount-1)
+	if val != nil {
+		return val.Val
+	}
+
+	return -1
+}
+
+// count是root树的节点数量，val是第k个小的值，没有则返回空
+func KthLargestCount(root *TreeNode, k int) (count int, val *TreeNode) {
+	if root == nil {
+		return 0, nil
+	}
+	// 先找右边
+	rightCount, val := KthLargestCount(root.Right, k)
+	if val != nil {
+		return 0, val
+	}
+	// 判断k位置是否是root的位置
+	if k == rightCount+1 {
+		return 0, root
+	}
+	// 在root的左子树中查询
+	leftCount, val := KthLargestCount(root.Left, k-rightCount-1)
+	// 不为空则找到了
+	if val != nil {
+		return 0, val
+	}
+	count = leftCount + rightCount + 1
+	return
 }
 
 /*
@@ -406,41 +464,44 @@ func kthSmallest(root *TreeNode, k int) int {
 
 // The optimal runtime complexity is O(height of BST).
 func kthSmallest2(root *TreeNode, k int) int {
+	// 先查询左边
 	leftCount, val := kthSmallest2Count(root.Left, k)
 	if val != nil {
 		return val.Val
 	}
-	rightCount, val := kthSmallest2Count(root.Right, k-leftCount-1)
+	// k是否是root节点
+	if k == leftCount+1 {
+		return root.Val
+	}
+	// 再查询右边
+	_, val = kthSmallest2Count(root.Right, k-leftCount-1)
 	if val != nil {
 		return val.Val
 	}
-	if k > rightCount+leftCount {
-		return -1
-	}
-	return root.Val
+	return -1
 }
 
+// count是root树的节点数量，val是第k个小的值，没有则返回空
 func kthSmallest2Count(root *TreeNode, k int) (count int, val *TreeNode) {
 	if root == nil {
 		return 0, nil
 	}
+
+	// 先找左边
 	leftCount, val := kthSmallest2Count(root.Left, k)
+	// 不为空则找到了
 	if val != nil {
 		return 0, val
 	}
-	if k < leftCount {
-		// 找到了
-		val = root
-		return
+	// 判断k位置是否是root的位置
+	if k == leftCount+1 {
+		return 0, root
 	}
+	// 在root的右子树中查询
 	rightCount, val := kthSmallest2Count(root.Right, k-leftCount-1)
 	if val != nil {
 		return 0, val
 	}
 	count = leftCount + rightCount + 1
-	if k <= count && k != 0 {
-		// 找到了
-		val = root
-	}
 	return
 }
