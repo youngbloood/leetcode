@@ -25,17 +25,29 @@ func CanJump(nums []int) bool {
 
 }
 func canJump(nums []int) bool {
+	jumpGame(nums, 0)
+}
+
+func jumpGame(nums []int, step int) bool {
+	if len(nums) >= step {
+		return true
+	}
 	var stepStack stack
-	var i int
+	i := step
 	for i < len(nums) {
-		step := nums[i]
+		step = nums[i]
 		if step == 0 {
 			break
 		}
 		stepStack.Push(i)
-		i += step
-
+		for ; step >= 0; step-- {
+			if jumpGame(nums, i+step) {
+				return true
+			}
+		}
+		i = stepStack.Pop()
 	}
+	return false
 }
 
 // stack存放下标索引
