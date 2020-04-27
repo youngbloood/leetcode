@@ -25,17 +25,31 @@ Output:
   []
 ]
 */
-
+// TODO: 能完成组合，但是不满足leetcode的要求
 func Subsets(nums []int) [][]int {
 	return subsets(nums)
 }
 
 func subsets(nums []int) [][]int {
 	var result [][]int
-	for i := 0; i <= len(nums); i++ {
-		generateSets(nums[i:], i, nil, &result)
+	result = append(result, []int{})
+	for i := 0; i < len(nums); i++ {
+		for n := 0; n <= len(nums[:i]); n++ {
+			generateSetsWithLeft(nums[:i], n, nums[i], nil, &result)
+		}
 	}
 	return result
+}
+
+func generateSetsWithLeft(nums []int, n int, val int, subset []int, result *[][]int) {
+	if n == 0 {
+		subset = append(subset, val)
+		sort.Ints(subset)
+		*result = append(*result, subset)
+	}
+	for i, v := range nums {
+		generateSetsWithLeft(nums[i+1:], n-1, val, append(subset, v), result)
+	}
 }
 
 func generateSets(nums []int, n int, subset []int, result *[][]int) {
@@ -47,11 +61,3 @@ func generateSets(nums []int, n int, subset []int, result *[][]int) {
 		generateSets(nums[i+1:], n-1, append(subset, v), result)
 	}
 }
-
-// [[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]
-// 9, 0, 3, 5, 7
-// output
-// [[],[9],[0],[3],[5],[7],[9,0],[9,3],[9,5],[9,7],[0,3],[0,5],[0,7],[3,5],[3,7],[5,7],[9,0,3],[9,0,5],[9,0,7],[9,3,5],[9,3,7],[9,5,7],[0,3,5],[0,3,7],[0,5,7],[3,5,7],[9,0,3,7],[9,0,3,7],[9,0,5,7],[9,3,5,7],[0,3,5,7],[9,0,3,5,7]]
-
-// Expected
-// [[],[9],[0],[0,9],[3],[3,9],[0,3],[0,3,9],[5],[5,9],[0,5],[0,5,9],[3,5],[3,5,9],[0,3,5],[0,3,5,9],[7],[7,9],[0,7],[0,7,9],[3,7],[3,7,9],[0,3,7],[0,3,7,9],[5,7],[5,7,9],[0,5,7],[0,5,7,9],[3,5,7],[3,5,7,9],[0,3,5,7],[0,3,5,7,9]]
