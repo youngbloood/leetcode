@@ -22,43 +22,18 @@ Explanation: You will always arrive at index 3 no matter what. Its maximum
              jump length is 0, which makes it impossible to reach the last index.
 */
 func CanJump(nums []int) bool {
-
+	return canJump(nums)
 }
 func canJump(nums []int) bool {
-	jumpGame(nums, 0)
-}
-
-func jumpGame(nums []int, step int) bool {
-	if len(nums) >= step {
-		return true
-	}
-	var stepStack stack
-	i := step
-	for i < len(nums) {
-		step = nums[i]
-		if step == 0 {
+	reach := 0
+	n := len(nums)
+	for i := 0; i < n; i++ {
+		if i > reach || reach >= n-1 {
 			break
 		}
-		stepStack.Push(i)
-		for ; step >= 0; step-- {
-			if jumpGame(nums, i+step) {
-				return true
-			}
+		if reach < i+nums[i] {
+			reach = i + nums[i]
 		}
-		i = stepStack.Pop()
 	}
-	return false
-}
-
-// stack存放下标索引
-type stack []int
-
-func (s stack) Push(val int) {
-	s = append(s, val)
-}
-
-func (s stack) Pop() int {
-	val := s[len(s)-1]
-	s = s[:len(s)-1]
-	return val
+	return reach >= n-1
 }

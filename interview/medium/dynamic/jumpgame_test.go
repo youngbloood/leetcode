@@ -10,4 +10,6 @@ func TestCanJump(t *testing.T) {
 	t.Log(dynamic.CanJump(nums))
 	nums = []int{3, 2, 1, 0, 4}
 	t.Log(dynamic.CanJump(nums))
+	nums = []int{0}
+	t.Log(dynamic.CanJump(nums))
 }
