@@ -24,10 +24,11 @@ func IsHappy(n int) bool {
 	return isHappy(n)
 }
 func isHappy(n int) bool {
-	return isHappyNum(n, nil)
+	set := make(map[int]struct{}, 0)
+	return isHappyNum(n, set)
 }
 
-func isHappyNum(n int, list []int) bool {
+func isHappyNum(n int, set map[int]struct{}) bool {
 	var all int
 	for n > 0 {
 		num := n % 10
@@ -43,21 +44,16 @@ func isHappyNum(n int, list []int) bool {
 	if all == 1 {
 		return true
 	}
-	var isCycle bool
-	if list, isCycle = isHappyCycle(list, all); isCycle {
+	if isCycle := isHappyCycle(set, all); isCycle {
 		return false
 	}
-	return isHappyNum(all, list)
+	return isHappyNum(all, set)
 }
 
-func isHappyCycle(list []int, num int) ([]int, bool) {
-	if list == nil {
-		list = append(list, num)
-		return list, false
+func isHappyCycle(set map[int]struct{}, num int) bool {
+	if _, exist := set[num]; exist {
+		return true
 	}
-	if num == list[0] {
-		return list, true
-	}
-	list = append(list, num)
-	return list, false
+	set[num] = struct{}{}
+	return false
 }
