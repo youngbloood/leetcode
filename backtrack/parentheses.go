@@ -14,17 +14,29 @@ For example, given n = 3, a solution set is:
 ]
 */
 func GenerateParenthesis(n int) []string {
-
+	return generateParenthesis(n)
 }
 func generateParenthesis(n int) []string {
 	if n <= 0 {
 		return nil
 	}
-	if n == 1 {
-		return []string{"()"}
-	}
+	var result []string
+	generateParenthesisDFS(n, n, "", &result)
+	return result
 }
 
-func insert(src []string, n int) []string {
-
+func generateParenthesisDFS(left, right int, out string, result *[]string) {
+	if left > right {
+		return
+	}
+	if left == 0 && right == 0 {
+		*result = append(*result, out)
+	} else {
+		if left > 0 {
+			generateParenthesisDFS(left-1, right, out+"(", result)
+		}
+		if right > 0 {
+			generateParenthesisDFS(left, right-1, out+")", result)
+		}
+	}
 }
