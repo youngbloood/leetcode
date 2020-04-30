@@ -48,4 +48,7 @@ func TestFractionToDecimal(t *testing.T) {
 	t.Log(math.FractionToDecimal(1, 6))
 
 	t.Log(math.FractionToDecimal(1, 333))
+	t.Log(math.FractionToDecimal(-50, 8))
+	t.Log(math.FractionToDecimal(1, 214748364))
+
 }

@@ -1,7 +1,6 @@
 package math
 
 import (
-	"fmt"
 	"math"
 	"strconv"
 	"strings"
@@ -193,82 +192,41 @@ func FractionToDecimal(numerator int, denominator int) string {
 	return fractionToDecimal(numerator, denominator)
 }
 func fractionToDecimal(numerator int, denominator int) string {
-	quotient := numerator / denominator
-	mod := numerator % denominator
-	if mod == 0 {
-		return strconv.Itoa(quotient)
-	}
-	mods := findFractionCycle(mod, denominator)
-	return fmt.Sprintf("%d.%s", quotient, mods)
-}
 
-// 寻找循环数组
-func findFractionCycle(mod, denominator int) (mods string) {
+	var result string
 
-	var list []int
-	var cycle []int
-	var set = make(map[int]int, 0) //val:index
-	var first int = -1
-	var firstTemp int
-	var period int
-	var periodTemp int
-	var isCycle bool
-
-	for mod != 0 {
-		mod *= 10
-		inQuotient := mod / denominator
-
-		list = append(list, inQuotient)
-		if index, exist := set[inQuotient]; exist {
-			if first == -1 {
-				first = index
-				firstTemp = first
-				period = len(list) - 1 - index
-				periodTemp = period
-			} else {
-				first++
-				if list[first] == inQuotient && first < len(list) {
-					period--
-					if period <= 0 {
-						cycle = list[firstTemp : firstTemp+periodTemp]
-						isCycle = true
-						break
-					}
-					if inQuotient > 0 {
-						mod %= denominator
-					}
-					continue
-				}
-			}
+	if (numerator > 0 && denominator < 0) || (denominator > 0 && numerator < 0) {
+		result = "-"
+		if numerator < 0 {
+			numerator *= -1
 		} else {
-			period++
-			periodTemp++
-		}
-		set[inQuotient] = len(list) - 1 // 设置值
-		mods += strconv.Itoa(inQuotient)
-		if inQuotient > 0 {
-			mod %= denominator
+			denominator *= -1
 		}
 	}
 
-	if isCycle {
-		cycleStr := make([]string, len(cycle)+firstTemp)
-		for i := 0; i < firstTemp; i++ {
-			cycleStr[i] = strconv.Itoa(list[i])
-		}
-
-		if cycle != nil {
-			for i, v := range cycle {
-				cycleStr[i+firstTemp] = strconv.Itoa(v)
-			}
-		}
-		mods = strings.Join(cycleStr[:firstTemp], "") + "(" + strings.Join(cycleStr[firstTemp:], "") + ")"
-	} else {
-		cycleStr := make([]string, len(cycle)+period)
-		for i, v := range list {
-			cycleStr[i] = strconv.Itoa(v)
-		}
-		mods = strings.Join(cycleStr, "")
+	result += strconv.Itoa(numerator / denominator)
+	if numerator%denominator == 0 {
+		return result
 	}
-	return
+
+	result += "."
+	var leftString string
+	cycleMap := make(map[int]int, 0) // 余数：商
+	left := numerator % denominator
+
+	for {
+		if left == 0 {
+			return result + leftString
+		}
+		if val, exist := cycleMap[left]; exist {
+			i := strings.Index(leftString, strconv.Itoa(val))
+			return result + leftString[0:i] + "(" + leftString[i:] + ")"
+		}
+		target := left * 10 / denominator
+		temp := left * 10 % denominator
+		cycleMap[left] = target
+		leftString += strconv.Itoa(target)
+		left = temp
+	}
+	return result
 }
