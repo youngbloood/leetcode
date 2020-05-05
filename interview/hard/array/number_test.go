@@ -40,3 +40,10 @@ func TestLongestConsecutive(t *testing.T) {
 	t.Log(array.LongestConsecutive(nums))
 
 }
+
+func TestFindDuplicate(t *testing.T) {
+	nums := []int{1, 3, 4, 2, 2}
+	t.Log(array.FindDuplicate(nums))
+	nums = []int{3, 1, 3, 4, 2}
+	t.Log(array.FindDuplicate(nums))
+}

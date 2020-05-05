@@ -120,8 +120,25 @@ Your runtime complexity should be less than O(n2).
 There is only one duplicate number in the array, but it could be repeated more than once.
 */
 func FindDuplicate(nums []int) int {
-
+	return findDuplicate(nums)
 }
-func findDuplicate(nums []int) int {
 
+// 抽屉原理
+func findDuplicate(nums []int) int {
+	left, right := 1, len(nums)
+	for left < right {
+		mid := left + (right-left)/2
+		cnt := 0
+		for _, v := range nums {
+			if v <= mid {
+				cnt++
+			}
+		}
+		if cnt <= mid {
+			left = mid + 1
+		} else {
+			right = mid
+		}
+	}
+	return right
 }
