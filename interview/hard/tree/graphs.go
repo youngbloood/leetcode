@@ -121,22 +121,193 @@ func findCircleNum(M [][]int) int {
 	height := len(M)
 	width := len(M[0])
 
-	circleFriend := make([][2]int, 0)
+	visited := make([][]bool, height)
+	for i := 0; i < height; i++ {
+		visited[i] = make([]bool, width)
+	}
+
+	var circleNum int
 	for i := 0; i < height; i++ {
 		for j := i; j < width; j++ {
-			if M[i][j] == 1 || M[j][i] == 1 {
-				circleFriend = append(circleFriend, [2]int{i, j})
+			if visited[i][j] || M[i][j] != 1 {
+				continue
+			}
+			circleNum++
+			findCircleNumDFS(M, visited, height, width, i, j)
+		}
+	}
+
+	return circleNum
+}
+
+func findCircleNumDFS(M [][]int, visited [][]bool, height, width int, x, y int) {
+	if x < 0 || x >= height || y < 0 || y >= width || visited[x][y] || M[x][y] == 0 {
+		return
+	}
+	visited[x][y] = true
+
+	for j := 0; j < width; j++ {
+		if j == y {
+			continue
+		}
+		findCircleNumDFS(M, visited, height, width, x, j)
+	}
+	for i := 0; i < width; i++ {
+		if i == x {
+			continue
+		}
+		findCircleNumDFS(M, visited, height, width, i, y)
+	}
+}
+
+// leetcode优解
+func findCircleNum2(M [][]int) int {
+	var numCircles int
+	visited := make([]bool, len(M))
+	for i := 0; i < len(M); i++ {
+		if visited[i] {
+			continue
+		}
+		numCircles++
+		dfs(i, M, visited)
+	}
+	return numCircles
+}
+
+func dfs(node int, adjMatrix [][]int, visited []bool) {
+	visited[node] = true
+
+	for neighbor, friendship := range adjMatrix[node] {
+		if friendship != 1 || visited[neighbor] {
+			continue
+		}
+		dfs(neighbor, adjMatrix, visited)
+	}
+}
+
+/*
+# Course Schedule
+# https://leetcode.com/explore/interview/card/top-interview-questions-hard/118/trees-and-graphs/847/
+
+There are a total of numCourses courses you have to take, labeled from 0 to numCourses-1.
+
+Some courses may have prerequisites, for example to take course 0 you have to first take course 1, which is expressed as a pair: [0,1]
+
+Given the total number of courses and a list of prerequisite pairs, is it possible for you to finish all courses?
+
+
+
+Example 1:
+
+Input: numCourses = 2, prerequisites = [[1,0]]
+Output: true
+Explanation: There are a total of 2 courses to take.
+			 To take course 1 you should have finished course 0. So it is possible.
+
+Example 2:
+
+Input: numCourses = 2, prerequisites = [[1,0],[0,1]]
+Output: false
+Explanation: There are a total of 2 courses to take.
+             To take course 1 you should have finished course 0, and to take course 0 you should
+             also have finished course 1. So it is impossible.
+
+
+Constraints:
+
+The input prerequisites is a graph represented by a list of edges, not adjacency matrices. Read more about how a graph is represented.
+You may assume that there are no duplicate edges in the input prerequisites.
+1 <= numCourses <= 10^5
+*/
+func CanFinish(numCourses int, prerequisites [][]int) bool {
+	return canFinish(numCourses, prerequisites)
+}
+func canFinish(numCourses int, prerequisites [][]int) bool {
+
+	// table := make(map[int][]int, len(prerequisites))
+
+	// for _, pre := range prerequisites {
+	// 	table[pre[0]] = pre
+	// }
+	return false
+}
+
+/*
+# Longest Increasing Path in a Matrix
+# https://leetcode.com/explore/interview/card/top-interview-questions-hard/118/trees-and-graphs/849/
+
+Given an integer matrix, find the length of the longest increasing path.
+
+From each cell, you can either move to four directions: left, right, up or down. You may NOT move diagonally or move outside of the boundary (i.e. wrap-around is not allowed).
+
+Example 1:
+
+Input: nums =
+[
+  [9,9,4],
+  [6,6,8],
+  [2,1,1]
+]
+Output: 4
+Explanation: The longest increasing path is [1, 2, 6, 9].
+
+Example 2:
+Input: nums =
+[
+  [3,4,5],
+  [3,2,6],
+  [2,2,1]
+]
+Output: 4
+Explanation: The longest increasing path is [3, 4, 5, 6]. Moving diagonally is not allowed.
+*/
+func LongestIncreasingPath(matrix [][]int) int {
+	return longestIncreasingPath(matrix)
+}
+func longestIncreasingPath(matrix [][]int) int {
+
+	height := len(matrix)
+	width := len(matrix[0])
+
+	visited := make([][]bool, height)
+	for i := 0; i < height; i++ {
+		visited[i] = make([]bool, width)
+	}
+
+	var max int
+
+	for i := 0; i < height; i++ {
+		for j := 0; j < width; j++ {
+			queue := []int{i*width + j}
+			var length int
+			for len(queue) != 0 {
+				t := queue[0]
+				queue = queue[1:]
+				before := matrix[i][j]
+				longestIncreasingPathBFS(matrix, visited, t/width-1, t%width, before, &queue, &length)
+				longestIncreasingPathBFS(matrix, visited, t/width, t%width-1, before, &queue, &length)
+				longestIncreasingPathBFS(matrix, visited, t/width+1, t%width, before, &queue, &length)
+				longestIncreasingPathBFS(matrix, visited, t/width, t%width+1, before, &queue, &length)
+			}
+			if length > max {
+				max = length
+			}
+			// 重置访问路径
+			for l := 0; l < height; l++ {
+				visited[l] = make([]bool, width)
 			}
 		}
 	}
-	// 处理
-	if len(circleFriend) == 0 {
-		return 0
-	}
-	relate := make([][]int, 0)
+	return max
+}
 
-	if circleFriend[len(circleFriend)-1][1] != width-1 {
-		return len(circleFriend) + 1
+func longestIncreasingPathBFS(matrix [][]int, visited [][]bool, x, y, before int, queue *[]int, length *int) {
+	if x < 0 || x >= len(matrix[0]) || y < 0 || y >= len(matrix) || visited[x][y] || matrix[x][y] <= before {
+		// visited[x][y] = false
+		return
 	}
-	return len(circleFriend)
+	visited[x][y] = true
+	*length = *length + 1
+	*queue = append(*queue, y*len(matrix[0])+x)
+	before = matrix[x][y]
 }

@@ -58,3 +58,19 @@ func TestFindCircleNum(t *testing.T) {
 	}
 	t.Log(tree.FindCircleNum(M))
 }
+
+func TestLongestIncreasingPath(t *testing.T) {
+	matrix := [][]int{
+		[]int{9, 9, 4},
+		[]int{6, 6, 8},
+		[]int{2, 1, 1},
+	}
+	t.Log(tree.LongestIncreasingPath(matrix))
+
+	// matrix = [][]int{
+	// 	[]int{3, 4, 5},
+	// 	[]int{3, 2, 6},
+	// 	[]int{2, 2, 1},
+	// }
+	// t.Log(tree.LongestIncreasingPath(matrix))
+}
