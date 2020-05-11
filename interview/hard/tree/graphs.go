@@ -262,52 +262,94 @@ Output: 4
 Explanation: The longest increasing path is [3, 4, 5, 6]. Moving diagonally is not allowed.
 */
 func LongestIncreasingPath(matrix [][]int) int {
-	return longestIncreasingPath(matrix)
+	return longestIncreasingPath2(matrix)
 }
+
+// timeout
 func longestIncreasingPath(matrix [][]int) int {
+	if matrix == nil || len(matrix) == 0 {
+		return 0
+	}
 
 	height := len(matrix)
 	width := len(matrix[0])
-
-	visited := make([][]bool, height)
-	for i := 0; i < height; i++ {
-		visited[i] = make([]bool, width)
-	}
 
 	var max int
 
 	for i := 0; i < height; i++ {
 		for j := 0; j < width; j++ {
-			queue := []int{i*width + j}
-			var length int
+			queue := make([]int, 0, height*width)
+			queue = append(queue, i*width+j)
+			var depth int
+			var queuePtr int = len(queue)
 			for len(queue) != 0 {
 				t := queue[0]
 				queue = queue[1:]
-				before := matrix[i][j]
-				longestIncreasingPathBFS(matrix, visited, t/width-1, t%width, before, &queue, &length)
-				longestIncreasingPathBFS(matrix, visited, t/width, t%width-1, before, &queue, &length)
-				longestIncreasingPathBFS(matrix, visited, t/width+1, t%width, before, &queue, &length)
-				longestIncreasingPathBFS(matrix, visited, t/width, t%width+1, before, &queue, &length)
+				before := matrix[t/width][t%width]
+				longestIncreasingPathBFS(matrix, t/width-1, t%width, before, &queue)
+				longestIncreasingPathBFS(matrix, t/width, t%width-1, before, &queue)
+				longestIncreasingPathBFS(matrix, t/width+1, t%width, before, &queue)
+				longestIncreasingPathBFS(matrix, t/width, t%width+1, before, &queue)
+				queuePtr--
+				if queuePtr == 0 {
+					depth++
+					queuePtr = len(queue)
+				}
 			}
-			if length > max {
-				max = length
-			}
-			// 重置访问路径
-			for l := 0; l < height; l++ {
-				visited[l] = make([]bool, width)
+			if depth > max {
+				max = depth
 			}
 		}
 	}
 	return max
 }
 
-func longestIncreasingPathBFS(matrix [][]int, visited [][]bool, x, y, before int, queue *[]int, length *int) {
-	if x < 0 || x >= len(matrix[0]) || y < 0 || y >= len(matrix) || visited[x][y] || matrix[x][y] <= before {
-		// visited[x][y] = false
+func longestIncreasingPathBFS(matrix [][]int, x, y, before int, queue *[]int) {
+	if x < 0 || x >= len(matrix) || y < 0 || y >= len(matrix[0]) || matrix[x][y] <= before {
 		return
 	}
-	visited[x][y] = true
-	*length = *length + 1
-	*queue = append(*queue, y*len(matrix[0])+x)
-	before = matrix[x][y]
+	*queue = append(*queue, x*len(matrix[0])+y)
+}
+
+func longestIncreasingPath2(matrix [][]int) int {
+
+	if matrix == nil || len(matrix) == 0 {
+		return 0
+	}
+
+	res, m, n := 0, len(matrix), len(matrix[0])
+
+	dp := make([][]int, m)
+	for i := 0; i < m; i++ {
+		dp[i] = make([]int, n)
+	}
+
+	dirs := [][]int{[]int{0, -1}, []int{-1, 0}, []int{0, 1}, []int{1, 0}}
+	for i := 0; i < m; i++ {
+		for j := 0; j < n; j++ {
+			if depth := longestIncreasingPathDFS(matrix, dp, dirs, i, j); depth > res {
+				res = depth
+			}
+		}
+	}
+	return res
+}
+
+func longestIncreasingPathDFS(matrix, dp, dirs [][]int, i, j int) int {
+	if dp[i][j] != 0 {
+		return dp[i][j]
+	}
+	mx, m, n := 1, len(matrix), len(matrix[0])
+	for _, a := range dirs {
+		x, y := i+a[0], j+a[1]
+		if x < 0 || x >= m || y < 0 || y >= n || matrix[x][y] <= matrix[i][j] {
+			continue
+		}
+		length := 1 + longestIncreasingPathDFS(matrix, dp, dirs, x, y)
+		if length > mx {
+			mx = length
+		}
+	}
+	dp[i][j] = mx
+	return mx
 }
