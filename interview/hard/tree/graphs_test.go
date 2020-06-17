@@ -114,3 +114,8 @@ func TestLongestIncreasingPath(t *testing.T) {
 	}
 	t.Log(tree.LongestIncreasingPath(matrix))
 }
+
+func TestCountSmaller(t *testing.T) {
+	nums := []int{5, 2, 6, 1}
+	t.Log(tree.CountSmaller(nums))
+}

@@ -353,3 +353,35 @@ func longestIncreasingPathDFS(matrix, dp, dirs [][]int, i, j int) int {
 	dp[i][j] = mx
 	return mx
 }
+
+/*
+# Count of Smaller Numbers After Self
+# https://leetcode.com/explore/interview/card/top-interview-questions-hard/118/trees-and-graphs/851/
+
+You are given an integer array nums and you have to return a new counts array. The counts array has the property where counts[i] is the number of smaller elements to the right of nums[i].
+
+Example:
+
+Input: [5,2,6,1]
+Output: [2,1,1,0]
+Explanation:
+To the right of 5 there are 2 smaller elements (2 and 1).
+To the right of 2 there is only 1 smaller element (1).
+To the right of 6 there is 1 smaller element (1).
+To the right of 1 there is 0 smaller element.
+*/
+func CountSmaller(nums []int) []int {
+	return countSmaller(nums)
+}
+
+func countSmaller(nums []int) []int {
+	result := make([]int, len(nums))
+	for i := range nums {
+		for iter := i + 1; iter < len(nums); iter++ {
+			if nums[iter] < nums[i] {
+				result[i]++
+			}
+		}
+	}
+	return result
+}
